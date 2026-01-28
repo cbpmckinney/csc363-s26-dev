@@ -1,0 +1,5 @@
+[Token type: TokenType.INTDEC; lexeme: ia]
+[Token type: TokenType.INTDEC; lexeme: ib]
+[Token type: TokenType.PRINT; lexeme: pa]
+[Token type: TokenType.PRINT; lexeme: pb]
+[Token type: TokenType.EOF; lexeme: ]

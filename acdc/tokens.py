@@ -2,16 +2,18 @@ from enum import Enum
 
 class TokenType(Enum):
     PRINT = 0
-    INTLIT = 1
-    VARREF = 2
-    ASSIGN = 3
-    PLUS = 4
-    MINUS = 5
-    TIMES = 6
-    DIVIDE = 7
-    LPAREN = 8
-    RPAREN = 9
-    EOF = 10
+    INTDEC = 1
+    INTLIT = 2
+    VARREF = 3
+    ASSIGN = 4
+    PLUS = 5
+    MINUS = 6
+    TIMES = 7
+    DIVIDE = 8
+    EXPONENT = 9
+    LPAREN = 10
+    RPAREN = 11
+    EOF = 12
 
 
 

@@ -15,14 +15,11 @@ import sys
 # Get input from file
 with open(sys.argv[1], 'r') as inputfile:
     inputcontents = inputfile.read()
-    inputcontents = inputcontents.replace(" ", "") # Eliminate spaces
-    inputcontents = inputcontents.replace("\t", "") # Eliminate tabs
-    inputcontents = inputcontents.replace("\n", "") # Eliminate newlines
-    inputcontents = inputcontents.replace("\r", "") # Eliminate carriage returns
 
 print("\n")
 print(f"Tokenizing {sys.argv[1]}...")
-print(f"Input contents after stripping: {inputcontents}")    
+print(f"Input contents:")
+print(inputcontents)    
 
 cs = CharStream(inputcontents)
 

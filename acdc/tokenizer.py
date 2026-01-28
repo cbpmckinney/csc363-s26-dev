@@ -1,6 +1,10 @@
 from charstream import CharStream
 from tokens import Token, TokenType
 from tokenstream import TokenStream
+import string
+
+RESERVED = {'i', 'f', 'o', 'n', 'p'}
+VALID_VARS = set(string.ascii_lowercase) - RESERVED
 
 class Tokenizer:
 
@@ -20,6 +24,8 @@ class Tokenizer:
     def nexttoken(self) -> Token:
 
         char = self.cs.read()
+        while char in {' ', '\n', '\r', '\t'}:
+            char = self.cs.read() # Consume chars for space, newline, etc.
 
         # To do: based on this char, decide what to do next
         # We can handle some of this with a match
@@ -27,41 +33,54 @@ class Tokenizer:
         match char:
 
             case '=':
-                return Token(TokenType.ASSIGN, lexeme = '=')
+                return Token(TokenType.ASSIGN, lexeme = f"{char}")
             
             case '(':
-                raise NotImplementedError
+                return Token(TokenType.LPAREN, lexeme = f"{char}")
                 
             case ')': 
-                raise NotImplementedError
+                return Token(TokenType.RPAREN, lexeme = f"{char}")
             
-            case '+' | '-' | '*' | '/' | '^':
-                raise NotImplementedError
+            case '+':
+                return Token(TokenType.PLUS, lexeme = f"{char}")
+            case '-':
+                return Token(TokenType.MINUS, lexeme = f"{char}")
+            case '*':
+                return Token(TokenType.TIMES, lexeme = f"{char}")
+            case '/':
+                return Token(TokenType.DIVIDE, lexeme = f"{char}")
+            case '^':
+                return Token(TokenType.EXPONENT, lexeme = f"{char}")
             
             case 'i':
-                # Todo: peek next character, validate 
-                # Create and return appropriate token
-                # Note: you already have the char 'i', so don't lose it
-                raise NotImplementedError
+                nextchar = self.cs.peek()
+                if nextchar not in VALID_VARS:
+                    raise ValueError(f"Invalid variable character: {nextchar}")
+                else:
+                    self.cs.advance()
+                    return Token(TokenType.INTDEC, lexeme = f"{char}{nextchar}")
 
             case 'p':
-                # Todo: peek next character, validate
-                # Create and return appropriate token
-                raise NotImplementedError
-            
+                nextchar = self.cs.peek()
+                if nextchar not in VALID_VARS:
+                    raise ValueError(f"Invalid variable character: {nextchar}")
+                else:
+                    self.cs.advance()
+                    return Token(TokenType.PRINT, lexeme = f"{char}{nextchar}")
+                
             case _:
                 pass # Move on to secondary inspection
 
         if char.isdigit():
-            # Todo: finish reading integer literal using readintliteral(char)
-            # Create and return appropriate token
-            # Note: char already has the first digit, so don't lose it.
-            raise NotImplementedError    
+            lexeme, intvalue = self.readintliteral(char)
+            return Token(TokenType.INTLIT, lexeme = lexeme, intvalue = intvalue)
 
         if char.isalpha():
-            # Todo: make sure char is a valid variable
-            # 
-            raise NotImplementedError
+            if char not in VALID_VARS:
+                raise ValueError(f"Invalid variable character: {char}")
+            else:
+                return Token(TokenType.VARREF, lexeme = f"{char}")
+           
         
 
         raise ValueError(f"Unexpected character: {char}")
