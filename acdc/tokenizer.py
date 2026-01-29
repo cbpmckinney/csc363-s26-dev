@@ -13,11 +13,12 @@ class Tokenizer:
 
     def tokenize(self) -> TokenStream:
         ts = TokenStream()
-        while not self.cs.eof():
+        while True:
             tok = self.nexttoken()
             ts.append(tok)
+            if tok.tokentype == TokenType.EOF:
+                break
 
-        ts.append(Token(TokenType.EOF, lexeme = ''))
         return ts
     
 
@@ -26,10 +27,10 @@ class Tokenizer:
         char = self.cs.read()
         while char in {' ', '\n', '\r', '\t'}:
             char = self.cs.read() # Consume chars for space, newline, etc.
+        
+        if char == '':
+            return Token(TokenType.EOF, lexeme = f"{char}")
 
-        # To do: based on this char, decide what to do next
-        # We can handle some of this with a match
-        # Others require a conditional (because of more complex logic)
         match char:
 
             case '=':
@@ -53,23 +54,33 @@ class Tokenizer:
                 return Token(TokenType.EXPONENT, lexeme = f"{char}")
             
             case 'i':
+                # Allow optional whitespace between 'i' and the variable name
                 nextchar = self.cs.peek()
-                if nextchar not in VALID_VARS:
-                    raise ValueError(f"Invalid variable character: {nextchar}")
+                while nextchar in {' ', '\n', '\r', '\t'}:
+                    self.cs.advance()
+                    nextchar = self.cs.peek()
+
+                if nextchar == '' or nextchar not in VALID_VARS:
+                    raise ValueError(f"Invalid variable character: {nextchar!r}")
                 else:
                     self.cs.advance()
-                    return Token(TokenType.INTDEC, lexeme = f"{char}{nextchar}")
+                    return Token(TokenType.INTDEC, lexeme = f"{char}{nextchar}", name = f"{nextchar}")
 
             case 'p':
+                # Allow optional whitespace between 'p' and the variable name
                 nextchar = self.cs.peek()
-                if nextchar not in VALID_VARS:
-                    raise ValueError(f"Invalid variable character: {nextchar}")
+                while nextchar in {' ', '\n', '\r', '\t'}:
+                    self.cs.advance()
+                    nextchar = self.cs.peek()
+
+                if nextchar == '' or nextchar not in VALID_VARS:
+                    raise ValueError(f"Invalid variable character: {nextchar!r}")
                 else:
                     self.cs.advance()
-                    return Token(TokenType.PRINT, lexeme = f"{char}{nextchar}")
-                
+                    return Token(TokenType.PRINT, lexeme = f"{char}{nextchar}", name = f"{nextchar}")
+
             case _:
-                pass # Move on to secondary inspection
+                pass # Move on to secondary inspection to handle digits, vars, error case
 
         if char.isdigit():
             lexeme, intvalue = self.readintliteral(char)
@@ -81,9 +92,7 @@ class Tokenizer:
             else:
                 return Token(TokenType.VARREF, lexeme = f"{char}")
            
-        
-
-        raise ValueError(f"Unexpected character: {char}")
+        raise ValueError(f"Unexpected character: {char!r}")
         
     
 
@@ -91,10 +100,12 @@ class Tokenizer:
         
         digits: list[str] = []
         digits.append(firstchar)
+        if firstchar == '0' and self.cs.peek() == '0':
+            raise ValueError("Integer literal cannot have a leading zero")
+
         while not self.cs.eof() and self.cs.peek().isdigit():
             digits.append(self.cs.read())
 
         lexeme = ''.join(digits)
 
         return lexeme, int(lexeme)
-

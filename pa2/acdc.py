@@ -7,19 +7,12 @@ import sys
 
 # Expectation of program: 
 # input filename will be sys.argv[1]
-# output filename will be sys.argv[2] (not implemented yet)
-# Program will read source ac code from the input file, strip new lines and whitespaces
-# For now, program will create charstream, tokenize to a tokenstream, and print the tokenstream to stdout
+# output filename will be sys.argv[2]
 
 
 # Get input from file
 with open(sys.argv[1], 'r') as inputfile:
     inputcontents = inputfile.read()
-
-#print("\n")
-#print(f"Tokenizing {sys.argv[1]}...")
-#print(f"Input contents:")
-#print(inputcontents)    
 
 cs = CharStream(inputcontents)
 
@@ -30,13 +23,8 @@ try:
         for token in ts:
             outputfile.write(str(token) + "\n")    
 
-    #for token in ts:
-    #    print(token)
-
-    #print(f"Tokenizing succeeded.  Output written to {sys.argv[2]}.")
 
 except Exception as e:
     with open(sys.argv[2], 'w') as outputfile:
-        #print(f"ERROR: {type(e).__name__}: {e}\n")
         outputfile.write(f"ERROR: {type(e).__name__}: {e}\n")
         exit(1)
