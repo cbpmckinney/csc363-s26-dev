@@ -147,16 +147,14 @@ def reduce(opstack: list, valstack: list) -> None:
     """Pop one operator and two operands to build a BinOpNode and push it back."""
     if len(opstack) == 0:
         raise ParseError("Expected operator")
+    
     operator = opstack.pop()
 
-    if len(valstack) == 0:
-        raise ParseError(f"Expected operand for operator {operator.tokentype}")
+    if len(valstack) <= 1:
+        raise ParseError(f"Expected two operands for operator {operator.tokentype}")
+    
     rhs = valstack.pop()
-
-    if len(valstack) == 0:
-        raise ParseError(f"Expected operand for operator {operator.tokentype}")
     lhs = valstack.pop()
-
     valstack.append(BinOpNode(operator.tokentype, lhs, rhs))
 
 
