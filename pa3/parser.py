@@ -143,6 +143,9 @@ def parse_expression(ts: TokenStream, stop_tokens=None) -> ASTNode:
     return valstack.pop()
 
 
+
+
+
 def reduce(opstack: list, valstack: list) -> None:
     """Pop one operator and two operands to build a BinOpNode and push it back."""
     if len(opstack) == 0:
