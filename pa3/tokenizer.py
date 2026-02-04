@@ -25,15 +25,11 @@ class Tokenizer:
     def nexttoken(self) -> Token:
 
         char = self.cs.read()
-
         while char in {' ', '\n', '\r', '\t'}:
             char = self.cs.read() # Consume chars for space, newline, etc.
         
-        
         if char == '':
             return Token(TokenType.EOF, lexeme = f"{char}")
-
-
 
         match char:
 
@@ -41,32 +37,48 @@ class Tokenizer:
                 return Token(TokenType.ASSIGN, lexeme = f"{char}")
             
             case '(':
-                raise NotImplementedError
+                return Token(TokenType.LPAREN, lexeme = f"{char}")
                 
             case ')': 
-                raise NotImplementedError
+                return Token(TokenType.RPAREN, lexeme = f"{char}")
             
             case '+':
-                raise NotImplementedError
-            
+                return Token(TokenType.PLUS, lexeme = f"{char}")
             case '-':
-                raise NotImplementedError
-            
+                return Token(TokenType.MINUS, lexeme = f"{char}")
             case '*':
-                raise NotImplementedError
-            
+                return Token(TokenType.TIMES, lexeme = f"{char}")
             case '/':
-                raise NotImplementedError
-            
+                return Token(TokenType.DIVIDE, lexeme = f"{char}")
             case '^':
-                raise NotImplementedError
+                return Token(TokenType.EXPONENT, lexeme = f"{char}")
             
             case 'i':
-                raise NotImplementedError
+                # Allow optional whitespace between 'i' and the variable name
+                nextchar = self.cs.peek()
+                while nextchar in {' ', '\n', '\r', '\t'}:
+                    self.cs.advance()
+                    nextchar = self.cs.peek()
+
+                if nextchar == '' or nextchar not in VALID_VARS:
+                    raise ValueError(f"Invalid variable character: {nextchar!r}")
+                else:
+                    self.cs.advance()
+                    return Token(TokenType.INTDEC, lexeme = f"{char}{nextchar}", name = f"{nextchar}")
 
             case 'p':
-                raise NotImplementedError
-            
+                # Allow optional whitespace between 'p' and the variable name
+                nextchar = self.cs.peek()
+                while nextchar in {' ', '\n', '\r', '\t'}:
+                    self.cs.advance()
+                    nextchar = self.cs.peek()
+
+                if nextchar == '' or nextchar not in VALID_VARS:
+                    raise ValueError(f"Invalid variable character: {nextchar!r}")
+                else:
+                    self.cs.advance()
+                    return Token(TokenType.PRINT, lexeme = f"{char}{nextchar}", name = f"{nextchar}")
+
             case _:
                 pass # Move on to secondary inspection to handle digits, vars, error case
 
@@ -74,12 +86,11 @@ class Tokenizer:
             lexeme, intvalue = self.readintliteral(char)
             return Token(TokenType.INTLIT, lexeme = lexeme, intvalue = intvalue)
 
-
         if char.isalpha():
             if char not in VALID_VARS:
                 raise ValueError(f"Invalid variable character: {char}")
             else:
-                raise NotImplementedError
+                return Token(TokenType.VARREF, lexeme = f"{char}")
            
         raise ValueError(f"Unexpected character: {char!r}")
         
@@ -89,11 +100,11 @@ class Tokenizer:
         
         digits: list[str] = []
         digits.append(firstchar)
-        #if CONDITION:
-        #    raise ValueError("Integer literal cannot have a leading zero")
+        if firstchar == '0' and self.cs.peek() == '0':
+            raise ValueError("Integer literal cannot have a leading zero")
 
-        #while not self.cs.eof() and SOMETHING:
-        #    digits.append(SOMETHING)
+        while not self.cs.eof() and self.cs.peek().isdigit():
+            digits.append(self.cs.read())
 
         lexeme = ''.join(digits)
 

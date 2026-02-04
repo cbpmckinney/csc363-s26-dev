@@ -15,17 +15,23 @@ class TokenStream:
     def __len__(self):
         return len(self.tokens)
     
-    def eots(self) -> bool:
+    def eof(self) -> bool:
         return self.pos >= self.__len__()
 
     def advance(self):
-        self.pos += 1
+        if not self.eof():
+            self.pos += 1
 
     def read(self) -> Token:
-        tok = self.tokens[self.pos]
-        self.advance()
-        return tok
+        if not self.eof():
+            tok = self.tokens[self.pos]
+            self.advance()
+            return tok
+        else:
+            return Token(TokenType.EOF, '')
     
     def peek(self) -> Token:
-        return self.tokens[self.pos]
-    
+        if not self.eof():
+            return self.tokens[self.pos]
+        else: 
+            return Token(TokenType.EOF, '')

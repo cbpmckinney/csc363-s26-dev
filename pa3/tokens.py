@@ -14,6 +14,7 @@ class TokenType(Enum):
     LPAREN = 10
     RPAREN = 11
     EOF = 12
+    EOTS = 13
 
 
 
@@ -39,5 +40,6 @@ class Token:
 
         return f"[Token type: {self.tokentype}; lexeme: {self.lexeme}{namepart}{intvalpart}]"
 
-
+    def __repr__(self):
+        return self.__str__()
     
