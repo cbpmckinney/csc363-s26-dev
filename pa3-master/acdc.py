@@ -44,22 +44,6 @@ for linenumber, line in enumerate(inputlines, start=1):
         outputfile.close()
         exit(1)
 
-#outputfile.close()
-
-#cs = CharStream("ia")
-#ts = Tokenizer(cs).tokenize()
-#for tok in ts:
-#    print(tok)
-
-#left = IntLitNode(5)
-#right = VarRefNode("b")
-#opnode = BinOpNode(TokenType.PLUS, left, right)
-
-#node = AssignNode("a", opnode)
-#program.append(node)
-
-#node2 = PrintNode("b")
-#program.append(node2)
 
 
 for ts in tokenstreams:

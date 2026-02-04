@@ -34,7 +34,7 @@ def parse(ts: TokenStream) -> ASTNode:
     if t.tokentype == TokenType.VARREF:
         lhs = ts.read()  # consume VARREF
         expect(ts, TokenType.ASSIGN)
-        rhs = parse_expression(ts, stop_tokens={TokenType.EOF})
+        rhs = parse_expression(ts)
         if lhs.lexeme is None:
             raise ParseError("Malformed VARREF token on LHS")
         node = AssignNode(lhs.lexeme, rhs)
@@ -46,10 +46,8 @@ def parse(ts: TokenStream) -> ASTNode:
     )
 
 
-def parse_expression(ts: TokenStream, stop_tokens=None) -> ASTNode:
+def parse_expression(ts: TokenStream) -> ASTNode:
     """Parse an infix arithmetic expression using shunting-yard, producing an AST."""
-    if stop_tokens is None:
-        stop_tokens = {TokenType.EOF}
 
     opstack = []   # stack of operator Tokens (and LPAREN)
     valstack = []  # stack of ASTNodes
@@ -79,7 +77,7 @@ def parse_expression(ts: TokenStream, stop_tokens=None) -> ASTNode:
         TokenType.EXPONENT,
     }
 
-    while ts.peek().tokentype not in stop_tokens:
+    while ts.peek().tokentype != TokenType.EOF:
         tok = ts.peek()
 
         if tok.tokentype == TokenType.INTLIT:
