@@ -1,1 +1,1 @@
-Parse Error: Expected two operands for operator TokenType.TIMES (line 1)
+Parse Error: Expected lparen, intlit, or varref after lparen (line 1)

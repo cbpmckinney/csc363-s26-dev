@@ -84,17 +84,27 @@ def parse_expression(ts: TokenStream) -> ASTNode:
             tok = ts.read()
             if tok.intvalue is None:
                 raise ParseError("Malformed INTLIT token")
-            valstack.append(IntLitNode(tok.intvalue))
-            continue
+            next = ts.peek()
+            if ((next.tokentype in operatortypes) or (next.tokentype == TokenType.RPAREN) or (next.tokentype == TokenType.EOF)):
+                valstack.append(IntLitNode(tok.intvalue))
+                continue
+            raise ParseError("Expected operator or rparen after int literal")
 
         if tok.tokentype == TokenType.VARREF:
             tok = ts.read()
             if tok.lexeme is None:
                 raise ParseError("Malformed VARREF token")
-            valstack.append(VarRefNode(tok.lexeme))
-            continue
+            next = ts.peek()
+            if ((next.tokentype in operatortypes) or (next.tokentype == TokenType.RPAREN) or (next.tokentype == TokenType.EOF)):
+                valstack.append(VarRefNode(tok.lexeme))
+                continue
+            raise ParseError("Expected operator or rparen after varref")
 
         if tok.tokentype == TokenType.LPAREN:
+            tok = ts.read() # Consume lparen
+            next = ts.peek()
+            if next.tokentype not in {TokenType.LPAREN, TokenType.VARREF, TokenType.INTLIT}:
+                raise ParseError("Expected lparen, intlit, or varref after lparen")
             opstack.append(ts.read())
             continue
 
@@ -112,6 +122,9 @@ def parse_expression(ts: TokenStream) -> ASTNode:
 
         if tok.tokentype in operatortypes:
             incoming = ts.read()  # consume operator
+            next = ts.peek() # Get next item
+            if next.tokentype not in {TokenType.INTLIT, TokenType.LPAREN, TokenType.VARREF}:
+                raise ParseError("Expected operand or lparen after operator")
 
             while len(opstack) > 0 and opstack[-1].tokentype in operatortypes:
                 top = opstack[-1]

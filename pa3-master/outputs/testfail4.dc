@@ -1,1 +1,1 @@
-Parse Error: Expected two operands for operator TokenType.PLUS (line 1)
+Parse Error: Expected operand or lparen after operator (line 1)

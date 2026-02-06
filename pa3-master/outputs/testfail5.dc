@@ -1,1 +1,1 @@
-Parse Error: Expression did not reduce to one AST (line 1)
+Parse Error: Expected operator or rparen after int literal (line 1)
