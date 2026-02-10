@@ -9,7 +9,6 @@ def semanticanalysis(program: list[ASTNode]) -> None:
     declared = []
     initialized = []
 
-
     for linenumber, statement in enumerate(program, start=1):
         _semantic_check_stmt(statement, declared, initialized, linenumber)
     
