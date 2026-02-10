@@ -22,23 +22,23 @@ def _semantic_check_stmt(statement: ASTNode, declared: list[str], initialized: l
         varname = statement.varname
 
         if varname in declared:
-            raise SemanticError(f"Variable {varname} redeclared on line {linenumber}")
+            raise SemanticError(f"Variable {varname!r} redeclared at line {linenumber}")
         declared.append(varname)
         return
     
     if isinstance(statement, PrintNode):
         varname = statement.varname
         if varname not in declared:
-            raise SemanticError(f"Trying to print undeclared variable {varname} at line {linenumber}")
+            raise SemanticError(f"Trying to print undeclared variable {varname!r} at line {linenumber}")
         if varname not in initialized:
-            raise SemanticError(f"Trying to print uninitialized variable {varname} at line {linenumber}")
+            raise SemanticError(f"Trying to print uninitialized variable {varname!r} at line {linenumber}")
         return
     
     if isinstance(statement, AssignNode):
         varname = statement.varname
         expr = statement.expr
         if varname not in declared:
-            raise SemanticError(f"Assignment to undeclared variable {varname} at line {linenumber}")
+            raise SemanticError(f"Assignment to undeclared variable {varname!r} at line {linenumber}")
         _semantic_check_expr(expr, declared, initialized, linenumber)
         initialized.append(varname)
         return
@@ -52,9 +52,9 @@ def _semantic_check_expr(expr: ASTNode, declared: list[str], initialized: list[s
     if isinstance(expr, VarRefNode):
         varname = expr.varname
         if varname not in declared:
-            raise SemanticError(f"Use of undeclared variable {varname} at {linenumber}")
+            raise SemanticError(f"Use of undeclared variable {varname!r} at line {linenumber}")
         if varname not in initialized:
-            raise SemanticError(f"Use of unitialized variable {varname} at {linenumber}")
+            raise SemanticError(f"Use of unitialized variable {varname!r} at line {linenumber}")
         
         return 
     

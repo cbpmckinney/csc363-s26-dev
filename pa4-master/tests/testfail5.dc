@@ -1,1 +1,1 @@
-Semantic Error: Use of unitialized variable a at 2
+Semantic Error: Use of unitialized variable 'a' at line 2
