@@ -6,11 +6,11 @@ class TokenType(Enum):
     INTLIT = 2
     VARREF = 3
     ASSIGN = 4
-    PLUS = 5
-    MINUS = 6
-    TIMES = 7
-    DIVIDE = 8
-    EXPONENT = 9
+    PLUS = '+'
+    MINUS = '-'
+    TIMES = '*'
+    DIVIDE = '/'
+    EXPONENT = '^'
     LPAREN = 10
     RPAREN = 11
     EOF = 12

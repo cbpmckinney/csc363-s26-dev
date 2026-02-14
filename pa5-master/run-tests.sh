@@ -1,64 +1,84 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# run_tests.sh
+#
+# For each tests/testX.ac:
+#   1) compile:  acdc tests/testX.ac tests/testX.dc
+#   2) run:      dc -f tests/testX.dc
+#   3) run gold: dc -f outputs/testX.dc
+#   4) compare stdout (pass if identical)
+#
+# Exit code: 0 if all pass, 1 otherwise.
 
-passed=0
-failed=0
-total=0
+set -u
+shopt -s nullglob
 
-run_test () {
-    base="$1"
-    acfile="tests/${base}.ac"
-    out_test="tests/${base}.dc"
-    out_expected="outputs/${base}.dc"
+PASS=0
+FAIL=0
+TOTAL=0
 
-    if [ ! -f "$acfile" ]; then
-        echo "❌ Test input not found: $acfile"
-        return
-    fi
+# Optional: let caller override paths
+TEST_DIR="${TEST_DIR:-tests}"
+GOLD_DIR="${GOLD_DIR:-outputs}"
 
-    if [ ! -f "$out_expected" ]; then
-        echo "❌ Expected output not found: $out_expected"
-        return
-    fi
-
-    echo "Running $base..."
-
-    python3 acdc.py "$acfile" "$out_test"
-
-    if diff -q "$out_test" "$out_expected" > /dev/null; then
-        echo "  ✅ PASS"
-        passed=$((passed + 1))
-    else
-        echo "  ❌ FAIL"
-        echo "     Differences:"
-        diff "$out_test" "$out_expected"
-        failed=$((failed + 1))
-    fi
-
-    total=$((total + 1))
-    echo
-}
-
-# If a test name is given, run only that test
-if [ $# -eq 1 ]; then
-    run_test "$1"
-else
-    # Otherwise, run all tests
-    for acfile in tests/*.ac; do
-        base=$(basename "$acfile" .ac)
-        run_test "$base"
-    done
+# Sanity checks
+if ! command -v acdc >/dev/null 2>&1; then
+  echo "ERROR: acdc not found on PATH." >&2
+  exit 2
+fi
+if ! command -v dc >/dev/null 2>&1; then
+  echo "ERROR: dc not found on PATH." >&2
+  exit 2
 fi
 
-# Summary
-echo "========================"
-echo "Test Summary"
-echo "------------------------"
-echo "Total:  $total"
-echo "Passed: $passed"
-echo "Failed: $failed"
+tests=( "${TEST_DIR}"/test*.ac )
+if (( ${#tests[@]} == 0 )); then
+  echo "No tests found matching ${TEST_DIR}/test*.ac"
+  exit 2
+fi
 
-if [ $failed -eq 0 ]; then
-    echo "🎉 All tests passed!"
+for ac_file in "${tests[@]}"; do
+  base="$(basename "$ac_file" .ac)"          # e.g., test0
+  dc_out_file="${TEST_DIR}/${base}.dc"       # compiled output
+  gold_dc_file="${GOLD_DIR}/${base}.dc"      # expected dc program
+
+  ((TOTAL++))
+
+  # Compile
+  if ! acdc "$ac_file" "$dc_out_file" >/dev/null 2>&1; then
+    echo "[FAIL] ${base}: acdc compilation failed"
+    ((FAIL++))
+    continue
+  fi
+
+  # Check expected file exists
+  if [[ ! -f "$gold_dc_file" ]]; then
+    echo "[FAIL] ${base}: missing expected file ${gold_dc_file}"
+    ((FAIL++))
+    continue
+  fi
+
+  # Run both, normalize CRLF just in case
+  actual="$(dc -f "$dc_out_file" 2>&1 | tr -d '\r')"
+  expected="$(dc -f "$gold_dc_file" 2>&1 | tr -d '\r')"
+
+  if [[ "$actual" == "$expected" ]]; then
+    echo "[PASS] ${base}"
+    ((PASS++))
+  else
+    echo "[FAIL] ${base}"
+    echo "  --- actual (dc -f ${dc_out_file}) ---"
+    printf '%s\n' "$actual"
+    echo "  --- expected (dc -f ${gold_dc_file}) ---"
+    printf '%s\n' "$expected"
+    ((FAIL++))
+  fi
+done
+
+echo
+echo "Summary: ${PASS} passed, ${FAIL} failed, ${TOTAL} total"
+
+if (( FAIL > 0 )); then
+  exit 1
 else
-    echo "⚠️  Some tests failed."
+  exit 0
 fi

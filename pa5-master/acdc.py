@@ -6,6 +6,7 @@ from acdcast import *
 from acdcastpretty import *
 from parser import parse
 from semantic import *
+from codegen import *
 
 
 import sys
@@ -67,10 +68,17 @@ except Exception as e:
     exit(1)
 
 
+instructions = codegenerator(program)
 
-for statement in program:
-    outputfile.write(pretty_str(statement))
-    outputfile.write("\n")
+for instruction in instructions:
+    outputfile.write(instruction + '\n')
+
+
+
+
+#for statement in program:
+#    outputfile.write(pretty_str(statement))
+#    outputfile.write("\n")
 
 
 outputfile.close()
