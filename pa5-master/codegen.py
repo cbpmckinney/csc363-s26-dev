@@ -72,9 +72,21 @@ def stmtcodegen(statement: ASTNode) -> InstructionList:
         leftcode = stmtcodegen(statement.left)
         rightcode = stmtcodegen(statement.right)
 
-        code.extend(leftcode)
-        code.extend(rightcode)
-        code.append(f"{statement.optype.value}")
+        if isinstance(statement.right, IntLitNode):
+            exponent = statement.right.value
+            
+            code.extend(leftcode)
+            for i in range(exponent-1):
+                code.append("d")
+            for i in range(exponent-1):
+                code.append("*")
+
+
+        else:
+            code.extend(leftcode)
+            code.extend(rightcode)
+            code.append(f"{statement.optype.value}")
+        
         return code
     
 

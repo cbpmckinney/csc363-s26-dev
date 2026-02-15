@@ -21,8 +21,12 @@ TEST_DIR="${TEST_DIR:-tests}"
 GOLD_DIR="${GOLD_DIR:-outputs}"
 
 # Sanity checks
-if ! command -v acdc >/dev/null 2>&1; then
-  echo "ERROR: acdc not found on PATH." >&2
+if ! command -v python >/dev/null 2>&1; then
+  echo "ERROR: python not found on PATH." >&2
+  exit 2
+fi
+if [[ ! -f acdc.py ]]; then
+  echo "ERROR: acdc.py not found in current directory." >&2
   exit 2
 fi
 if ! command -v dc >/dev/null 2>&1; then
@@ -44,7 +48,7 @@ for ac_file in "${tests[@]}"; do
   ((TOTAL++))
 
   # Compile
-  if ! acdc "$ac_file" "$dc_out_file" >/dev/null 2>&1; then
+  if ! python acdc.py "$ac_file" "$dc_out_file" >/dev/null 2>&1; then
     echo "[FAIL] ${base}: acdc compilation failed"
     ((FAIL++))
     continue

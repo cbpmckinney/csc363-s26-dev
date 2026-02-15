@@ -1,4 +1,4 @@
-5
+4
 sa
 2
 sb
@@ -6,12 +6,10 @@ la
 lb
 ^
 sc
-lb
-sb
 lc
 la
 lb
-^
+*
 +
 sd
 ld
