@@ -72,7 +72,7 @@ def stmtcodegen(statement: ASTNode) -> InstructionList:
         leftcode = stmtcodegen(statement.left)
         rightcode = stmtcodegen(statement.right)
 
-        if isinstance(statement.right, IntLitNode):
+        if isinstance(statement.right, IntLitNode) and (statement.optype == TokenType.EXPONENT):
             exponent = statement.right.value
             
             code.extend(leftcode)
